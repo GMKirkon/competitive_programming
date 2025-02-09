@@ -12,8 +12,7 @@
       "description": "Default Release build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "TREAT_WARNINGS_AS_ERRORS": "OFF"
+        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       },
       "binaryDir": "cmake-build-Release"
     },
@@ -23,8 +22,7 @@
       "description": "Debug build without sanitizers",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "TREAT_WARNINGS_AS_ERRORS": "OFF"
+        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       },
       "binaryDir": "cmake-build-Debug"
     },
@@ -35,8 +33,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "USE_SANITIZERS": "ON",
-        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "TREAT_WARNINGS_AS_ERRORS": "OFF"
+        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       },
       "binaryDir": "cmake-build-SanitizedDebug"
     },
@@ -46,8 +43,7 @@
       "description": "Release with debug info",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake",
-        "TREAT_WARNINGS_AS_ERRORS": "OFF"
+        "CMAKE_TOOLCHAIN_FILE": "$env{HOME}/vcpkg/scripts/buildsystems/vcpkg.cmake"
       },
       "binaryDir": "cmake-build-RelWithDebInfo"
     }
