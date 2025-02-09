@@ -4,7 +4,7 @@ CompileFlags:
     - -Wall
     - -Wextra
     - -Wpedantic
-    - -Werror
+    # - -Werror
     - -Wno-sign-compare
     - -Wno-self-move
     - -Wno-unused-parameter

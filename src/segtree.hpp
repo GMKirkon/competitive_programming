@@ -26,7 +26,7 @@ struct segtree_node_interface {
    * @param b The second node.
    * @return The united node.
    */
-  virtual segtree_node_interface unite(const segtree_node_interface& a, const segtree_node_interface& b) = 0;
+  virtual segtree_node_interface& unite(const segtree_node_interface& a, const segtree_node_interface& b) = 0;
 
   /**
    * @brief Push the node to the children.

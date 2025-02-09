@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.21)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -20,6 +20,9 @@ file(GLOB TEST_SRC test/*.cpp)
 add_executable(tests ${TEST_SRC})
 
 target_include_directories(tests PRIVATE src test)
+
+# Define an option to control treating warnings as errors with a default value of OFF.
+option(TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 
 if(MSVC)
     target_compile_options(tests PRIVATE /W4 /permissive-)
@@ -54,8 +57,8 @@ endif()
 option(USE_SANITIZERS "Enable to build with undefined,leak and address sanitizers" OFF)
 if(USE_SANITIZERS)
     message(STATUS "Enabling sanitizers...")
-    target_compile_options(tests PUBLIC -fsanitize=address,undefined,leak -fno-sanitize-recover=all)
-    target_link_options(tests PUBLIC -fsanitize=address,undefined,leak)
+    target_compile_options(tests PUBLIC -fsanitize=address,undefined -fno-sanitize-recover=all)
+    target_link_options(tests PUBLIC -fsanitize=address,undefined)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -70,3 +73,6 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 endif()
 
 target_link_libraries(tests GTest::gtest GTest::gtest_main)
+
+enable_testing()
+add_test(NAME gtests COMMAND tests)

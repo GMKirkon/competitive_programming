@@ -1,0 +1,93 @@
+# This workflow builds and tests the project using CMake presets on multiple platforms.
+# It also installs vcpkg if not already available so that the vcpkg toolchain file defined in CMakePresets.json works.
+name: CMake Multi-Platform CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        build_type: [ Release, Debug, RelWithDebInfo, SanitizedDebug ]
+        exclude:
+          - os: windows-latest
+            build_type: SanitizedDebug
+    runs-on: ${{ matrix.os }}
+    env:
+      # Set the build directory based on the preset name defined in CMakePresets.json.
+      BUILD_DIR: cmake-build-${{ matrix.build_type }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # On Windows, set HOME to USERPROFILE so that "$env{HOME}/vcpkg/..." in CMakePresets.json resolves correctly.
+      - name: Set HOME for Windows
+        if: runner.os == 'Windows'
+        run: echo "HOME=$env:USERPROFILE" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      # Install vcpkg on Unix-like systems: Linux and macOS.
+      - name: Install vcpkg on Unix
+        if: runner.os != 'Windows'
+        run: |
+          if [ ! -d "$HOME/vcpkg" ]; then
+            echo "Cloning and bootstrapping vcpkg..."
+            git clone https://github.com/microsoft/vcpkg.git "$HOME/vcpkg"
+            "$HOME/vcpkg/bootstrap-vcpkg.sh"
+          else
+            echo "vcpkg already installed."
+          fi
+        shell: bash
+
+      # Install vcpkg on Windows.
+      - name: Install vcpkg on Windows
+        if: runner.os == 'Windows'
+        run: |
+          if not exist "%USERPROFILE%\vcpkg" (
+            echo Cloning and bootstrapping vcpkg...
+            git clone https://github.com/microsoft/vcpkg.git "%USERPROFILE%\vcpkg"
+            call "%USERPROFILE%\vcpkg\bootstrap-vcpkg.bat"
+          ) else (
+            echo vcpkg already installed.
+          )
+        shell: cmd
+
+      # Set BUILD_CONFIG variable for non-Windows hosts using bash.
+      - name: Set BUILD_CONFIG for non-Windows
+        if: runner.os != 'Windows'
+        run: |
+          if [ "${{ matrix.build_type }}" = "SanitizedDebug" ]; then
+            echo "BUILD_CONFIG=Debug" >> $GITHUB_ENV
+          else
+            echo "BUILD_CONFIG=${{ matrix.build_type }}" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      # Set BUILD_CONFIG variable for Windows hosts using PowerShell.
+      - name: Set BUILD_CONFIG for Windows
+        if: runner.os == 'Windows'
+        run: |
+          if ("${{ matrix.build_type }}" -eq "SanitizedDebug") {
+            echo "BUILD_CONFIG=Debug" | Out-File -Append -Encoding ascii $env:GITHUB_ENV
+          } else {
+            echo "BUILD_CONFIG=${{ matrix.build_type }}" | Out-File -Append -Encoding ascii $env:GITHUB_ENV
+          }
+        shell: pwsh
+
+      # Configure CMake using the preset.
+      - name: Configure CMake
+        run: cmake --preset ${{ matrix.build_type }}
+
+      # Build the project using the computed BUILD_CONFIG variable.
+      - name: Build
+        run: cmake --build ${{ env.BUILD_DIR }} --config ${{ env.BUILD_CONFIG }}
+
+      # Run tests via CTest using the computed BUILD_CONFIG.
+      - name: Test
+        working-directory: ${{ env.BUILD_DIR }}
+        run: ctest --build-config ${{ env.BUILD_CONFIG }}
