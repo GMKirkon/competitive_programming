@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+
+*.cache
+
+cmake-*
+
+vcpkg_installed
+
+
